@@ -1,6 +1,6 @@
 <aside class="sidebar" [class.sidebar--open]="isOpen()">
   <div class="sidebar__brand">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250" width="22" height="22" class="sidebar__logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250" width="22" height="22" class="sidebar__logo" aria-hidden="true">
       <path fill="#DD0031" d="M125 30L31.9 63.2l14.2 123.1L125 230l78.9-43.7 14.2-123.1z" />
       <path fill="#C3002F" d="M125 30v22.2-.1V230l78.9-43.7 14.2-123.1L125 30z" />
       <path fill="#FFFFFF"
@@ -9,9 +9,9 @@
     <span>Angular Insights</span>
   </div>
 
-  <nav class="sidebar__nav">
+  <nav class="sidebar__nav" aria-label="Main navigation">
     <p class="sidebar__section-label">Menu</p>
-    @for (item of navItems$ | async; track item.route) {
+    @for (item of navItems(); track item.route) {
     <a class="sidebar__link" [routerLink]="item.route" routerLinkActive="sidebar__link--active" (click)="onNavClick()">
       <i class="bi sidebar__icon" [class]="'bi ' + item.icon"></i>
       <span>{{ item.label }}</span>

@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 interface StatCard  { label: string; value: string; icon: string; color: string; }
 interface FeatureCard { title: string; desc: string; icon: string; }
@@ -9,18 +8,18 @@ interface FeatureCard { title: string; desc: string; icon: string; }
   selector: 'app-overview',
   imports: [CommonModule],
   templateUrl: './overview.html',
-  styleUrl: './overview.scss'
+  styleUrl: './overview.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OverviewComponent {
-  private readonly statsSubject = new BehaviorSubject<StatCard[]>([
+  readonly stats = signal<StatCard[]>([
     { label: 'Current Version', value: 'v20',         icon: 'bi-box',                color: '#6366f1' },
     { label: 'Initial Release',  value: '2016',        icon: 'bi-calendar3',          color: '#0ea5e9' },
     { label: 'Language',         value: 'TypeScript',  icon: 'bi-code-slash',         color: '#10b981' },
     { label: 'License',          value: 'MIT',         icon: 'bi-shield-check',       color: '#f59e0b' }
   ]);
-  readonly stats$: Observable<StatCard[]> = this.statsSubject.asObservable();
 
-  private readonly featuresSubject = new BehaviorSubject<FeatureCard[]>([
+  readonly features = signal<FeatureCard[]>([
     {
       title: 'Component Architecture',
       desc:  'Angular apps are built from reusable, self-contained components — each with its own template, styles, and logic.',
@@ -52,5 +51,4 @@ export class OverviewComponent {
       icon:  'bi-boxes'
     }
   ]);
-  readonly features$: Observable<FeatureCard[]> = this.featuresSubject.asObservable();
 }

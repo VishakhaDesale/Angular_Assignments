@@ -3,7 +3,10 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 
-// defines global configuration using providers-configure global features like routing and HTTP
+/**
+ * Global application configuration
+ * Configures routing, zone change detection, and error handling
+ */
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),

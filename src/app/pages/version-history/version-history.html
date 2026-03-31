@@ -13,7 +13,7 @@
   </header>
 
   <div class="grid-page__table-wrap">
-    <ag-grid-angular class="ag-theme-quartz grid-page__grid" [rowData]="filteredRowData()" [columnDefs]="colDefs"
+    <ag-grid-angular class="ag-theme-quartz grid-page__grid" [rowData]="filteredRowData$ | async" [columnDefs]="colDefs"
       [pagination]="true" [paginationPageSize]="8"
       [paginationPageSizeSelector]="false" [animateRows]="true" />
   </div>

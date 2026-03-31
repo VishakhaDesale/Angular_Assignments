@@ -36,14 +36,21 @@ export class ThemeService {
 
   /**
    * Load theme from localStorage or return default
+   * Safely handles errors in private browsing mode
    */
   private loadTheme(): Theme {
     if (typeof window === 'undefined') {
       return this.DEFAULT_THEME;
     }
 
-    const savedTheme = localStorage.getItem(this.THEME_STORAGE_KEY) as Theme;
-    return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : this.DEFAULT_THEME;
+    try {
+      const savedTheme = localStorage.getItem(this.THEME_STORAGE_KEY) as Theme;
+      return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : this.DEFAULT_THEME;
+    } catch (error) {
+      // Silently fail in private browsing or storage access errors
+      console.warn('Unable to access localStorage', error);
+      return this.DEFAULT_THEME;
+    }
   }
 
   /**
@@ -54,18 +61,28 @@ export class ThemeService {
       return;
     }
 
-    const root = document.documentElement;
-    root.setAttribute('data-theme', theme);
-    root.classList.remove('theme--light', 'theme--dark');
-    root.classList.add(`theme--${theme}`);
+    try {
+      const root = document.documentElement;
+      root.setAttribute('data-theme', theme);
+      root.classList.remove('theme--light', 'theme--dark');
+      root.classList.add(`theme--${theme}`);
+    } catch (error) {
+      console.error('Unable to apply theme to DOM', error);
+    }
   }
 
   /**
    * Save theme to localStorage
+   * Safely handles errors in private browsing mode
    */
   private saveTheme(theme: Theme): void {
     if (typeof window !== 'undefined') {
-      localStorage.setItem(this.THEME_STORAGE_KEY, theme);
+      try {
+        localStorage.setItem(this.THEME_STORAGE_KEY, theme);
+      } catch (error) {
+        // Silently fail in private browsing or storage quota exceeded
+        console.warn('Unable to save theme to localStorage', error);
+      }
     }
   }
 }

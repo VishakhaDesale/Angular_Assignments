@@ -1,11 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, ChangeDetectionStrategy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
-import { Subject, debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { ColDef, ClientSideRowModelModule, ModuleRegistry } from 'ag-grid-community';
+import { Subject, debounceTime, distinctUntilChanged, map, BehaviorSubject, Observable } from 'rxjs';
 import versionsData from './angular-versions.json';
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 interface AngularVersion {
   version: string;
@@ -19,11 +20,13 @@ interface AngularVersion {
 
 @Component({
   selector: 'app-version-history',
-  imports: [AgGridAngular],
+  imports: [CommonModule, AgGridAngular],
   templateUrl: './version-history.html',
-  styleUrl: './version-history.scss'
+  styleUrl: './version-history.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VersionHistoryComponent {
+  /** Search input stream */
   private readonly search$ = new Subject<string>();
 
   readonly colDefs: ColDef<AngularVersion>[] = [
@@ -37,7 +40,9 @@ export class VersionHistoryComponent {
   ];
 
   private readonly rowData: AngularVersion[] = versionsData;
-  readonly filteredRowData = signal<AngularVersion[]>(this.rowData);
+  private readonly filteredRowDataSubject = new BehaviorSubject<AngularVersion[]>(this.rowData);
+  readonly filteredRowData$ = this.filteredRowDataSubject.asObservable();
+  private readonly destroy = inject(DestroyRef);
 
   constructor() {
     this.search$
@@ -48,13 +53,26 @@ export class VersionHistoryComponent {
         map(term => this.filterRows(term)),
         takeUntilDestroyed()
       )
-      .subscribe(rows => this.filteredRowData.set(rows));
+      .subscribe({
+        next: (rows) => this.filteredRowDataSubject.next(rows),
+        error: (err) => console.error('Filter error:', err)
+      });
+    // Cleanup on destroy
+    this.destroy.onDestroy(() => this.filteredRowDataSubject.complete());
   }
 
-  onFilterInput(event: Event) {
-    this.search$.next((event.target as HTMLInputElement).value);
+  /**
+   * Handle filter input and push to search stream
+   */
+  onFilterInput(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    if (!target) return;
+    this.search$.next(target.value);
   }
 
+  /**
+   * Filter rows based on search term across all fields
+   */
   private filterRows(term: string): AngularVersion[] {
     if (!term) {
       return this.rowData;

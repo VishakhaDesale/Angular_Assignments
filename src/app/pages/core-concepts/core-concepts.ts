@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 interface TopicCard {
   icon: string;
@@ -16,11 +15,11 @@ interface TopicCard {
   selector: 'app-core-concepts',
   imports: [CommonModule],
   templateUrl: './core-concepts.html',
-  styleUrl: './core-concepts.scss'
+  styleUrl: './core-concepts.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CoreConceptsComponent {
-
-  private readonly topicsSubject = new BehaviorSubject<TopicCard[]>([
+  readonly topics = signal<TopicCard[]>([
     {
       icon: 'bi-diagram-3',
       category: 'Architecture',
@@ -150,5 +149,4 @@ export class CoreConceptsComponent {
       variant: 'green'
     }
   ]);
-  readonly topics$: Observable<TopicCard[]> = this.topicsSubject.asObservable();
 }
