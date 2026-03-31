@@ -17,7 +17,7 @@
       </h2>
 
       <div class="topic-grid">
-        @for (topic of topics(); track topic.title) {
+        @for (topic of topics$ | async; track topic.title) {
         <div class="topic-card topic-card--{{ topic.variant }}">
 
           <div class="topic-card__meta">

@@ -1,20 +1,35 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar';
-import { ThemeService } from '../services/theme.service';
+import { ThemeService, Theme } from '../services/theme.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, SidebarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent],
   templateUrl: './layout.html',
   styleUrl: './layout.scss'
 })
 export class LayoutComponent {
-  sidebarOpen = signal(false);
+  private readonly sidebarOpenSubject = new BehaviorSubject<boolean>(false);
+  readonly sidebarOpen$ = this.sidebarOpenSubject.asObservable();
 
-  constructor(readonly themeService: ThemeService) {}
+  readonly currentTheme$: Observable<Theme>;
 
-  toggle()     { this.sidebarOpen.update(v => !v); }
-  close()      { this.sidebarOpen.set(false);       }
-  toggleTheme() { this.themeService.toggleTheme();   }
+  constructor(readonly themeService: ThemeService) {
+    this.currentTheme$ = this.themeService.currentTheme$;
+  }
+
+  toggle(): void {
+    this.sidebarOpenSubject.next(!this.sidebarOpenSubject.value);
+  }
+
+  close(): void {
+    this.sidebarOpenSubject.next(false);
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 }

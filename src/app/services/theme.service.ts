@@ -1,4 +1,5 @@
-import { Injectable, effect, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, tap } from 'rxjs';
 
 export type Theme = 'light' | 'dark';
 
@@ -9,30 +10,28 @@ export class ThemeService {
   private readonly THEME_STORAGE_KEY = 'app-theme';
   private readonly DEFAULT_THEME: Theme = 'light';
 
-  // Signal to hold the current theme
-  currentTheme = signal<Theme>(this.loadTheme());
-
-  constructor() {
-    // Whenever the theme signal changes, apply it to the DOM and save to localStorage
-    effect(() => {
-      const theme = this.currentTheme();
+  // RxJS BehaviorSubject to hold the current theme
+  private readonly themeSubject = new BehaviorSubject<Theme>(this.loadTheme());
+  readonly currentTheme$ = this.themeSubject.asObservable().pipe(
+    tap(theme => {
       this.applyTheme(theme);
       this.saveTheme(theme);
-    });
-  }
+    })
+  );
 
   /**
    * Toggle between light and dark theme
    */
   toggleTheme(): void {
-    this.currentTheme.update(theme => (theme === 'light' ? 'dark' : 'light'));
+    const current = this.themeSubject.value;
+    this.themeSubject.next(current === 'light' ? 'dark' : 'light');
   }
 
   /**
    * Set a specific theme
    */
   setTheme(theme: Theme): void {
-    this.currentTheme.set(theme);
+    this.themeSubject.next(theme);
   }
 
   /**

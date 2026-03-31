@@ -1,22 +1,22 @@
-<div class="layout" [class.layout--open]="sidebarOpen()">
+<div class="layout" [class.layout--open]="(sidebarOpen$ | async) ?? false">
 
   <div class="layout__overlay" (click)="close()"></div>
 
-  <app-sidebar [isOpen]="sidebarOpen()" (closeSidebar)="close()" />
+  <app-sidebar [isOpen]="(sidebarOpen$ | async) ?? false" (closeSidebar)="close()" />
 
   <div class="layout__body">
     <header class="layout__topbar">
       <button class="layout__burger" (click)="toggle()" aria-label="Toggle menu">
-        <i class="bi" [class.bi-list]="!sidebarOpen()" [class.bi-x-lg]="sidebarOpen()"></i>
+        <i class="bi" [class.bi-list]="!(sidebarOpen$ | async)" [class.bi-x-lg]="(sidebarOpen$ | async)"></i>
       </button>
       <span class="layout__brand-mobile">Angular</span>
       <button
         class="layout__theme-toggle"
         (click)="toggleTheme()"
-        [attr.aria-label]="'Switch to ' + (themeService.currentTheme() === 'light' ? 'dark' : 'light') + ' theme'"
-        [title]="'Switch to ' + (themeService.currentTheme() === 'light' ? 'dark' : 'light') + ' theme'"
+        [attr.aria-label]="'Switch to ' + ((currentTheme$ | async) === 'light' ? 'dark' : 'light') + ' theme'"
+        [title]="'Switch to ' + ((currentTheme$ | async) === 'light' ? 'dark' : 'light') + ' theme'"
       >
-        <i class="bi" [class.bi-sun-fill]="themeService.currentTheme() === 'light'" [class.bi-moon-fill]="themeService.currentTheme() === 'dark'"></i>
+        <i class="bi" [class.bi-sun-fill]="(currentTheme$ | async) === 'light'" [class.bi-moon-fill]="(currentTheme$ | async) === 'dark'"></i>
       </button>
     </header>
 

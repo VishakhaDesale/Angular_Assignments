@@ -1,4 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 interface TopicCard {
   icon: string;
@@ -12,12 +14,13 @@ interface TopicCard {
 
 @Component({
   selector: 'app-core-concepts',
+  imports: [CommonModule],
   templateUrl: './core-concepts.html',
   styleUrl: './core-concepts.scss'
 })
 export class CoreConceptsComponent {
 
-  readonly topics = signal<TopicCard[]>([
+  private readonly topicsSubject = new BehaviorSubject<TopicCard[]>([
     {
       icon: 'bi-diagram-3',
       category: 'Architecture',
@@ -147,4 +150,5 @@ export class CoreConceptsComponent {
       variant: 'green'
     }
   ]);
+  readonly topics$: Observable<TopicCard[]> = this.topicsSubject.asObservable();
 }
