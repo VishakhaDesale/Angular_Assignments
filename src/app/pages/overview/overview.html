@@ -12,7 +12,7 @@
     </header>
   
     <div class="dashboard__stats">
-      @for (stat of stats; track stat.label) {
+      @for (stat of stats(); track stat.label) {
         <div class="stat-card">
           <div class="stat-card__icon" [style.background]="stat.color + '18'" [style.color]="stat.color">
             <i class="bi" [class]="stat.icon"></i>
@@ -28,7 +28,7 @@
     <section class="dashboard__section">
       <h2 class="dashboard__section-title">Core Capabilities</h2>
       <div class="dashboard__features">
-        @for (f of features; track f.title) {
+        @for (f of features(); track f.title) {
           <div class="feature-card">
             <div class="feature-card__icon">
               <i class="bi" [class]="f.icon"></i>

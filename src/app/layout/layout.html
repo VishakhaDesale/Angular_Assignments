@@ -10,6 +10,14 @@
         <i class="bi" [class.bi-list]="!sidebarOpen()" [class.bi-x-lg]="sidebarOpen()"></i>
       </button>
       <span class="layout__brand-mobile">Angular</span>
+      <button
+        class="layout__theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-label]="'Switch to ' + (themeService.currentTheme() === 'light' ? 'dark' : 'light') + ' theme'"
+        [title]="'Switch to ' + (themeService.currentTheme() === 'light' ? 'dark' : 'light') + ' theme'"
+      >
+        <i class="bi" [class.bi-sun-fill]="themeService.currentTheme() === 'light'" [class.bi-moon-fill]="themeService.currentTheme() === 'dark'"></i>
+      </button>
     </header>
 
     <main class="layout__content">

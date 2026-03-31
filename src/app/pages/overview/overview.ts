@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 interface StatCard  { label: string; value: string; icon: string; color: string; }
 interface FeatureCard { title: string; desc: string; icon: string; }
@@ -9,14 +9,14 @@ interface FeatureCard { title: string; desc: string; icon: string; }
   styleUrl: './overview.scss'
 })
 export class OverviewComponent {
-  readonly stats: StatCard[] = [
+  readonly stats = signal<StatCard[]>([
     { label: 'Current Version', value: 'v20',         icon: 'bi-box',                color: '#6366f1' },
     { label: 'Initial Release',  value: '2016',        icon: 'bi-calendar3',          color: '#0ea5e9' },
     { label: 'Language',         value: 'TypeScript',  icon: 'bi-code-slash',         color: '#10b981' },
     { label: 'License',          value: 'MIT',         icon: 'bi-shield-check',       color: '#f59e0b' }
-  ];
+  ]);
 
-  readonly features: FeatureCard[] = [
+  readonly features = signal<FeatureCard[]>([
     {
       title: 'Component Architecture',
       desc:  'Angular apps are built from reusable, self-contained components — each with its own template, styles, and logic.',
@@ -47,5 +47,5 @@ export class OverviewComponent {
       desc:  'Since Angular 19, standalone is default — no NgModules required, enabling simpler and leaner application structure.',
       icon:  'bi-boxes'
     }
-  ];
+  ]);
 }

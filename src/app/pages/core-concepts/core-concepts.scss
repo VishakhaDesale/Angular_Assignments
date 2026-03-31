@@ -27,24 +27,24 @@
   --_purple-border: #ddd6fe;
 }
 
-@media (prefers-color-scheme: dark) {
-  .about {
-    --_red:           #f87171;
-    --_red-bg:        #450a0a;
-    --_red-border:    #7f1d1d;
-    --_amber:         #fbbf24;
-    --_amber-bg:      #451a03;
-    --_amber-border:  #78350f;
-    --_green:         #4ade80;
-    --_green-bg:      #052e16;
-    --_green-border:  #166534;
-    --_blue:          #93c5fd;
-    --_blue-bg:       #172554;
-    --_blue-border:   #1e3a8a;
-    --_purple:        #c4b5fd;
-    --_purple-bg:     #2e1065;
-    --_purple-border: #4c1d95;
-  }
+/* Dark theme color variants */
+[data-theme="dark"] .about,
+.theme--dark .about {
+  --_red:           #f87171;
+  --_red-bg:        #450a0a;
+  --_red-border:    #7f1d1d;
+  --_amber:         #fbbf24;
+  --_amber-bg:      #451a03;
+  --_amber-border:  #78350f;
+  --_green:         #4ade80;
+  --_green-bg:      #052e16;
+  --_green-border:  #166534;
+  --_blue:          #93c5fd;
+  --_blue-bg:       #172554;
+  --_blue-border:   #1e3a8a;
+  --_purple:        #c4b5fd;
+  --_purple-bg:     #2e1065;
+  --_purple-border: #4c1d95;
 }
 
 // ─── Page shell ───────────────────────────────────────────────────────────────

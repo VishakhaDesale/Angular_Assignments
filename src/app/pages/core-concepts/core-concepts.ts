@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 interface TopicCard {
   icon: string;
@@ -17,7 +17,7 @@ interface TopicCard {
 })
 export class CoreConceptsComponent {
 
-  readonly topics: TopicCard[] = [
+  readonly topics = signal<TopicCard[]>([
     {
       icon: 'bi-diagram-3',
       category: 'Architecture',
@@ -146,5 +146,5 @@ export class CoreConceptsComponent {
       ],
       variant: 'green'
     }
-  ];
+  ]);
 }

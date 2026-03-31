@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { Subject, debounceTime, distinctUntilChanged, map } from 'rxjs';
 import versionsData from './angular-versions.json';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -22,7 +24,7 @@ interface AngularVersion {
   styleUrl: './version-history.scss'
 })
 export class VersionHistoryComponent {
-  quickFilter = signal('');
+  private readonly search$ = new Subject<string>();
 
   readonly colDefs: ColDef<AngularVersion>[] = [
     { field: 'version',         headerName: 'Version',          flex: 1, minWidth: 150 },
@@ -34,9 +36,40 @@ export class VersionHistoryComponent {
     { field: 'status',          headerName: 'Status',           flex: 0, minWidth: 90,  maxWidth: 110 }
   ];
 
-  readonly rowData: AngularVersion[] = versionsData;
+  private readonly rowData: AngularVersion[] = versionsData;
+  readonly filteredRowData = signal<AngularVersion[]>(this.rowData);
+
+  constructor() {
+    this.search$
+      .pipe(
+        map(value => value.trim().toLowerCase()),
+        debounceTime(350),
+        distinctUntilChanged(),
+        map(term => this.filterRows(term)),
+        takeUntilDestroyed()
+      )
+      .subscribe(rows => this.filteredRowData.set(rows));
+  }
 
   onFilterInput(event: Event) {
-    this.quickFilter.set((event.target as HTMLInputElement).value);
+    this.search$.next((event.target as HTMLInputElement).value);
+  }
+
+  private filterRows(term: string): AngularVersion[] {
+    if (!term) {
+      return this.rowData;
+    }
+
+    return this.rowData.filter(row =>
+      [
+        row.version,
+        String(row.year),
+        row.feature,
+        row.rendering,
+        row.moduleSystem,
+        row.changeDetection,
+        row.status
+      ].some(value => value.toLowerCase().includes(term))
+    );
   }
 }
