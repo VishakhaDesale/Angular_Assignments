@@ -1,9 +1,8 @@
-import { Component, OnInit, DestroyRef, HostListener, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, HostListener, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar';
-import { ThemeService, Theme } from '../services/theme.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-layout',
@@ -13,28 +12,23 @@ import { BehaviorSubject, Observable } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LayoutComponent {
-  private readonly sidebarOpenSubject = new BehaviorSubject<boolean>(false);
-  readonly sidebarOpen$ = this.sidebarOpenSubject.asObservable();
-  private readonly destroy = inject(DestroyRef);
-
-  readonly currentTheme$: Observable<Theme>;
+  readonly sidebarOpen = signal<boolean>(false);
+  readonly currentTheme;
 
   constructor(readonly themeService: ThemeService) {
-    this.currentTheme$ = this.themeService.currentTheme$;
-    // Cleanup on destroy
-    this.destroy.onDestroy(() => this.sidebarOpenSubject.complete());
+    this.currentTheme = this.themeService.currentTheme;
   }
 
   /**
    * Toggle sidebar open/closed state
    */
   toggle(): void {
-    this.sidebarOpenSubject.next(!this.sidebarOpenSubject.value);
+    this.sidebarOpen.update(value => !value);
   }
 
   /** Close the sidebar */
   close(): void {
-    this.sidebarOpenSubject.next(false);
+    this.sidebarOpen.set(false);
   }
 
   /** Close sidebar on Escape key */

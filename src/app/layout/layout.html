@@ -1,4 +1,4 @@
-@let isOpen = (sidebarOpen$ | async) ?? false;
+@let isOpen = sidebarOpen();
 <div class="layout" [class.layout--open]="isOpen">
 
   <div class="layout__overlay" (click)="close()"></div>
@@ -11,7 +11,7 @@
         <i class="bi" [class.bi-list]="!isOpen" [class.bi-x-lg]="isOpen"></i>
       </button>
       <span class="layout__brand-mobile">Angular</span>
-      @let theme = (currentTheme$ | async);
+      @let theme = currentTheme();
       <button
         class="layout__theme-toggle"
         (click)="toggleTheme()"

@@ -1,0 +1,158 @@
+<div class="movies-page">
+
+  <!-- ── Page Header ─────────────────────────────────────────────────── -->
+  <header class="movies-page__header">
+    <div>
+      <p class="movies-page__eyebrow">IMDbAPI.dev</p>
+      <h1 class="movies-page__title">Movie Search</h1>
+      <p class="movies-page__subtitle">Search movies, series and titles from IMDbAPI</p>
+    </div>
+
+    <div class="movies-page__search-wrap">
+      <i class="bi bi-search movies-page__search-icon"></i>
+      <input
+        id="movie-search-input"
+        class="movies-page__search-input"
+        type="text"
+        placeholder="Search movies, series..."
+        [formControl]="searchCtrl"
+        autocomplete="off"
+        aria-label="Search movies"
+      />
+      @if (isLoading()) {
+        <span class="movies-page__spinner" aria-label="Loading"></span>
+      }
+    </div>
+  </header>
+
+  <!-- ── Error Banner ────────────────────────────────────────────────── -->
+  @if (errorMsg()) {
+    <div class="movies-page__error" role="alert">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      {{ errorMsg() }}
+    </div>
+  }
+
+  <!-- ── Main Content: Grid + Detail Panel ──────────────────────────── -->
+  <div class="movies-page__body" [class.movies-page__body--with-panel]="selectedDetail()">
+
+    <!-- Results Grid -->
+    <div class="movies-page__grid">
+      @for (movie of movies(); track movie.id) {
+        <div
+          class="movie-card"
+          id="movie-card-{{ movie.id }}"
+          (click)="openDetail(movie)"
+          [class.movie-card--active]="selectedDetail()?.id === movie.id"
+          role="button"
+          [attr.aria-label]="'View details for ' + movie.title"
+          tabindex="0"
+          (keydown.enter)="openDetail(movie)"
+        >
+          <div class="movie-card__poster-wrap">
+            @if (hasPoster(movie.posterUrl)) {
+              <img class="movie-card__poster" [src]="movie.posterUrl" [alt]="movie.title" loading="lazy" />
+            } @else {
+              <div class="movie-card__no-poster">
+                <i class="bi bi-film"></i>
+              </div>
+            }
+            <span class="movie-card__type-badge">{{ movie.type }}</span>
+          </div>
+          <div class="movie-card__body">
+            <h3 class="movie-card__title">{{ movie.title }}</h3>
+            <p class="movie-card__year">
+              <i class="bi bi-calendar3"></i> {{ movie.year }}
+            </p>
+          </div>
+        </div>
+      }
+
+      <!-- No Results -->
+      @if (!isLoading() && !hasResults() && hasSearchTerm()) {
+        <div class="movies-page__empty">
+          <i class="bi bi-camera-reels"></i>
+          <p>No results for "<strong>{{ searchCtrl.value }}</strong>"</p>
+          <span>Try a different title or keyword</span>
+        </div>
+      }
+
+      <!-- Initial / Idle State -->
+      @if (!hasSearchTerm()) {
+        <div class="movies-page__empty">
+          <i class="bi bi-search-heart"></i>
+          <p>What would you like to watch?</p>
+          <span>Type a movie or series title to get started</span>
+        </div>
+      }
+    </div>
+
+    <!-- ── Detail Side Panel ─────────────────────────────────────────── -->
+    @if (selectedDetail() || isDetailLoading()) {
+      <aside class="movie-detail" aria-label="Movie details">
+
+        <button class="movie-detail__close" (click)="closeDetail()" aria-label="Close details">
+          <i class="bi bi-x-lg"></i>
+        </button>
+
+        @if (isDetailLoading()) {
+          <div class="movie-detail__loading">
+            <span class="movies-page__spinner"></span>
+            <p>Loading details...</p>
+          </div>
+        }
+
+        @if (selectedDetail(); as m) {
+          @if (hasPoster(m.posterUrl)) {
+            <img class="movie-detail__poster" [src]="m.posterUrl" [alt]="m.title" />
+          } @else {
+            <div class="movie-detail__no-poster"><i class="bi bi-film"></i></div>
+          }
+
+          <div class="movie-detail__content">
+            <span class="movie-detail__type">{{ m.type }}</span>
+            <h2 class="movie-detail__title">{{ m.title }}</h2>
+
+            <div class="movie-detail__meta">
+              <span><i class="bi bi-calendar3"></i> {{ m.year }}</span>
+              <span><i class="bi bi-clock"></i> {{ m.runtime }}</span>
+              <span><i class="bi bi-tags"></i> {{ m.type }}</span>
+            </div>
+
+            @if (m.rating > 0) {
+              <div class="movie-detail__rating">
+                <i class="bi bi-star-fill"></i>
+                <strong>{{ m.rating }}</strong><span>/10</span>
+                <span class="movie-detail__votes">&nbsp;({{ m.voteCount }} votes)</span>
+              </div>
+            }
+
+            <div class="movie-detail__genres">
+              @for (g of m.genres; track g) {
+                <span class="genre-tag">{{ g.trim() }}</span>
+              }
+            </div>
+
+            <p class="movie-detail__plot">{{ m.description }}</p>
+
+            <div class="movie-detail__credits">
+              @if (m.director !== 'N/A') {
+                <div class="credit-row">
+                  <span class="credit-row__label"><i class="bi bi-camera-video"></i> Director</span>
+                  <span class="credit-row__value">{{ m.director }}</span>
+                </div>
+              }
+              @if (m.actors.length > 0) {
+                <div class="credit-row">
+                  <span class="credit-row__label"><i class="bi bi-people"></i> Cast</span>
+                  <span class="credit-row__value">{{ m.actors.join(', ') }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </aside>
+    }
+
+  </div>
+</div>

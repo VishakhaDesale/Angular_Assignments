@@ -1,9 +1,10 @@
-import { Component, DestroyRef, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, ClientSideRowModelModule, ModuleRegistry } from 'ag-grid-community';
-import { Subject, debounceTime, distinctUntilChanged, map, BehaviorSubject, Observable } from 'rxjs';
+import { startWith } from 'rxjs';
+import { SearchService } from '../../services/search.service';
 import versionsData from './angular-versions.json';
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -26,8 +27,7 @@ interface AngularVersion {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VersionHistoryComponent {
-  /** Search input stream */
-  private readonly search$ = new Subject<string>();
+  private readonly searchService = inject(SearchService);
 
   readonly colDefs: ColDef<AngularVersion>[] = [
     { field: 'version',         headerName: 'Version',          flex: 1, minWidth: 150 },
@@ -39,27 +39,11 @@ export class VersionHistoryComponent {
     { field: 'status',          headerName: 'Status',           flex: 0, minWidth: 90,  maxWidth: 110 }
   ];
 
-  private readonly rowData: AngularVersion[] = versionsData;
-  private readonly filteredRowDataSubject = new BehaviorSubject<AngularVersion[]>(this.rowData);
-  readonly filteredRowData$ = this.filteredRowDataSubject.asObservable();
-  private readonly destroy = inject(DestroyRef);
-
-  constructor() {
-    this.search$
-      .pipe(
-        map(value => value.trim().toLowerCase()),
-        debounceTime(350),
-        distinctUntilChanged(),
-        map(term => this.filterRows(term)),
-        takeUntilDestroyed()
-      )
-      .subscribe({
-        next: (rows) => this.filteredRowDataSubject.next(rows),
-        error: (err) => console.error('Filter error:', err)
-      });
-    // Cleanup on destroy
-    this.destroy.onDestroy(() => this.filteredRowDataSubject.complete());
-  }
+  readonly rowData: AngularVersion[] = versionsData;
+  readonly searchTerm = toSignal(
+    this.searchService.searchTerm$.pipe(startWith('')),
+    { initialValue: '' }
+  );
 
   /**
    * Handle filter input and push to search stream
@@ -67,27 +51,6 @@ export class VersionHistoryComponent {
   onFilterInput(event: Event): void {
     const target = event.target as HTMLInputElement | null;
     if (!target) return;
-    this.search$.next(target.value);
-  }
-
-  /**
-   * Filter rows based on search term across all fields
-   */
-  private filterRows(term: string): AngularVersion[] {
-    if (!term) {
-      return this.rowData;
-    }
-
-    return this.rowData.filter(row =>
-      [
-        row.version,
-        String(row.year),
-        row.feature,
-        row.rendering,
-        row.moduleSystem,
-        row.changeDetection,
-        row.status
-      ].some(value => value.toLowerCase().includes(term))
-    );
+    this.searchService.updateSearchTerm(target.value);
   }
 }

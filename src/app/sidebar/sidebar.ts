@@ -20,9 +20,10 @@ export class SidebarComponent {
   closeSidebar = output<void>();
 
   readonly navItems = signal<NavItem[]>([
-    { label: 'Overview',        route: '/overview',        icon: 'bi-grid-1x2' },
-    { label: 'Version History', route: '/version-history', icon: 'bi-code-square' },
-    { label: 'Core Concepts',   route: '/core-concepts',   icon: 'bi-lightbulb' }
+    { label: 'Overview',        route: '/overview',        icon: 'bi-grid-1x2'     },
+    { label: 'Version History', route: '/version-history', icon: 'bi-code-square'  },
+    { label: 'Core Concepts',   route: '/core-concepts',   icon: 'bi-lightbulb'    },
+    { label: 'Movies',          route: '/movies',          icon: 'bi-camera-reels' },
   ]);
 
   /**
